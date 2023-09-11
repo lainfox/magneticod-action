@@ -5,7 +5,7 @@ on:
       time-duration:
         description: Time to run magneticod
         required: true
-        default: 10m
+        default: 1h
       database-url:
         description: Magneticod database URL
         required: true
