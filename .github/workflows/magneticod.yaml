@@ -31,7 +31,7 @@ jobs:
 
       - name: Get current date & time before crawl DHT
         id: date-time-before
-        run: echo ::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')
+        run: echo "{name=date-time::$(date +'%Y-%m-%d %H:%M')}" >> $GITHUB_OUTPUT
 
       - name: Run magneticod
         run: timeout "${{ github.event.inputs.time-duration }}" magneticod --database sqlite3://$GITHUB_WORKSPACE/database.sqlite3 || true
@@ -39,8 +39,8 @@ jobs:
       - name: Get current date & time after crawl DHT
         id: date-time-after
         run: |
-          echo ::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')
-          echo ::set-output name=date-time-tag::$(date +'%Y-%m-%d-%H-%M')
+          echo "{name=date-time::$(date +'%Y-%m-%d %H:%M')}" >> $GITHUB_OUTPUT
+          echo "{name=date-time-tag::$(date +'%Y-%m-%d-%H-%M')}" >> $GITHUB_OUTPUT
 
       - name: Compress database
         run: zstd -T0 -19 database.sqlite3
