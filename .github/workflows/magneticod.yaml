@@ -5,12 +5,12 @@ on:
       time-duration:
         description: Time to run magneticod
         required: true
-        default: 1h
+        default: 10m
       database-url:
         description: Magneticod database URL
         required: true
         default: https://github.com/AnimMouse/magneticod-actions/releases/latest/download/database.sqlite3.zst
-        
+
 jobs:
   magneticod:
     runs-on: ubuntu-latest
@@ -20,31 +20,31 @@ jobs:
         run: |
           aria2c -x 16 -d ./magneticod/ https://github.com/boramalper/magnetico/releases/latest/download/magneticod
           chmod +x ./magneticod/magneticod
-          
+
       - name: Install magneticod
         uses: AnimMouse/tool-cache@v1
         with:
           folder_name: magneticod
-          
+
       - name: Download and decompress database
         run: wget -O - "${{ github.event.inputs.database-url }}" | zstd -d -o database.sqlite3
-        
+
       - name: Get current date & time before crawl DHT
         id: date-time-before
         run: echo ::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')
-        
+
       - name: Run magneticod
         run: timeout "${{ github.event.inputs.time-duration }}" magneticod --database sqlite3://$GITHUB_WORKSPACE/database.sqlite3 || true
-        
+
       - name: Get current date & time after crawl DHT
         id: date-time-after
         run: |
           echo ::set-output name=date-time::$(date +'%Y-%m-%d %H:%M')
           echo ::set-output name=date-time-tag::$(date +'%Y-%m-%d-%H-%M')
-          
+
       - name: Compress database
         run: zstd -T0 -19 database.sqlite3
-        
+
       - name: Release database
         run: >
           gh release create "m-${{ steps.date-time-after.outputs.date-time-tag }}" "database.sqlite3.zst"
@@ -53,7 +53,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          
+
       - name: Delete older releases
         uses: dev-drprasad/delete-older-releases@v0.2.1
         with:
